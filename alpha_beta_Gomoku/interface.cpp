@@ -11,10 +11,10 @@ void DLL_interface::add_agent_stone(Negamax_agent* agent, int color, int py,int 
     agent->move(color, {py,px});
 }
 
-void DLL_interface::find_opt_move_with_alpha_beta(Negamax_agent* agent, int color, int& rec_y, int& rec_x, int time_limit){
-    pair<int,int> opt = agent->get_opt_move(color);
-    rec_y = opt.first;
-    rec_x = opt.second;
+int DLL_interface::find_opt_move_with_alpha_beta(Negamax_agent* agent, int color, int& rec_y, int& rec_x, int time_limit){
+    //pair<int,int> opt = agent->get_opt_move(color);
+    int ret_depth = agent->get_opt_move(color, rec_y, rec_x, time_limit);
+    return ret_depth;
 }
 
 void DLL_interface::release_agent(Negamax_agent* agent){

@@ -184,42 +184,77 @@ int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pa
     return opt_score;
 }
 
-pair<int,int> Negamax_agent:: get_opt_move(int color, int limit_time, bool show_detail){
-    pair<int,int> opt_solution={-1,-1};
-    for(int depth = 1; depth<5; depth++){
-        
-        vector< pair<int,int> > opt_path(depth);
-        auto time_now = chrono::steady_clock::now();
-        auto time_ms  = chrono::time_point_cast< chrono::milliseconds >( time_now );
-        
-        double time_start = time_ms.time_since_epoch().count();
+//pair<int,int> Negamax_agent:: get_opt_move(int color, int limit_time, bool show_detail){
+//    pair<int,int> opt_solution={-1,-1};
+//    for(int depth = 1; depth<5; depth++){
+//        
+//        vector< pair<int,int> > opt_path(depth);
+//        auto time_now = chrono::steady_clock::now();
+//        auto time_ms  = chrono::time_point_cast< chrono::milliseconds >( time_now );
+//        
+//        double time_start = time_ms.time_since_epoch().count();
+//
+//        int opt_score = Negamax(color, depth,-1e9, 1e9, opt_path, time(0), limit_time, true);
+//        if( opt_path[0].first!=0 and opt_path[0].second!=0 )
+//            opt_solution = opt_path[0];
+//		//cout<<"sucessfully calling Negamax function\n";
+//        if(opt_score == -2e9){
+//            if(show_detail)cout<<"interrupted at "<<depth<<"-th layer\n";
+//            break;
+//        }
+//        for(int i=0;i<opt_path.size();i++){
+//                for(int j=0;j<board_size*board_size;j++){
+//                    if( opt_path[i] == visit_seq[j] ){
+//                        for(int k=j;k>i;k--)swap( visit_seq[k], visit_seq[k-1] );
+//                        break;
+//                    }
+//                }
+//        }
+//        if(show_detail){
+//            cout<<"curret optimal score: "<< opt_score<<endl;
+//            cout<<"current optimal point: ("<< opt_solution.first<<','<< opt_solution.second<<" )\n\n";
+//            cout<<"following is the path:\n";
+//            print_path(opt_path, color);
+//        }
+//    }
+//    return opt_solution;
+//}
 
-        int opt_score = Negamax(color, depth,-1e9, 1e9, opt_path, time(0), limit_time, true);
-        if( opt_path[0].first!=0 and opt_path[0].second!=0 )
-            opt_solution = opt_path[0];
-		//cout<<"sucessfully calling Negamax function\n";
-        if(opt_score == -2e9){
-            if(show_detail)cout<<"interrupted at "<<depth<<"-th layer\n";
-            break;
-        }
-        for(int i=0;i<opt_path.size();i++){
-                for(int j=0;j<board_size*board_size;j++){
-                    if( opt_path[i] == visit_seq[j] ){
-                        for(int k=j;k>i;k--)swap( visit_seq[k], visit_seq[k-1] );
-                        break;
-                    }
-                }
-        }
-        if(show_detail){
-            cout<<"curret optimal score: "<< opt_score<<endl;
-            cout<<"current optimal point: ("<< opt_solution.first<<','<< opt_solution.second<<" )\n\n";
-            cout<<"following is the path:\n";
-            print_path(opt_path, color);
+int Negamax_agent::get_opt_move(int color, int& rec_y, int& rec_x, int limit_time, int limit_depth) {
+    for (int d = 2;d < limit_depth;d += 2) {
+        bool search_success = get_opt_move_with_fixed_depth(color, rec_y, rec_x, limit_time, d);
+        if (!search_success) {
+            //if (d == 2) {/*
+            //    rec_y = 1;
+            //    rec_x = 1;
+            //}*/
+            return d-2;
         }
     }
-    return opt_solution;
+    return limit_depth;
 }
 
+bool Negamax_agent::get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth) {
+    vector< pair<int,int> > opt_path(depth);
+    int opt_score = Negamax(color, depth, -1e9, 1e9, opt_path, time(0), limit_time, true);
+    pair<int,int> opt_solution = opt_path[0];
+		//cout<<"sucessfully calling Negamax function\n";
+    if (opt_score <= -2e9 or opt_solution.first == 0) {
+        return false;
+    }
+    for(int i=0;i<opt_path.size();i++){
+        for(int j=0;j<board_size*board_size;j++){
+        if( opt_path[i] == visit_seq[j] ){
+            for(int k=j;k>i;k--)
+                swap( visit_seq[k], visit_seq[k-1] );
+            break;
+            }
+        }
+    }
+    rec_y = opt_solution.first;
+    rec_x = opt_solution.second;
+    return true;
+}
 
 inline int Negamax_agent:: detect_5(int color, pair<int,int> pt){//判斷下在pt是否能做�?5, if yes the return 50
     if(board[pt.first][pt.second] != color)return 0;

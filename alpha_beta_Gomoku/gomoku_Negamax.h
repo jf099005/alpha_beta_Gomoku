@@ -32,7 +32,9 @@ class Negamax_agent: public gomoku_game{
 
         inline void print_path(vector< pair<int,int> > path_rec, int color=0);
         // get next step by calling Negamax with IDS algorithm
-        pair<int,int> get_opt_move(int color, int expect_time = 1000, bool show_detail=false);
+        // calculate the optimal move and record in the reference (y,x), return the maximal depth 
+        int get_opt_move(int color, int& rec_y, int& rec_x, int limit_time, int limit_depth=10);
+        bool get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth);
 
         bool is_win(int color);
 
@@ -56,6 +58,6 @@ class Negamax_agent: public gomoku_game{
         inline int detect_5(int color, pair<int,int> pt);// return 50 if player[color] can win when ze put stone on pt
         inline int detect_4(int color, pair<int,int> pt);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
         inline bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
-
+        
         map<int, pair<int,int> > transposition_table;
 };
