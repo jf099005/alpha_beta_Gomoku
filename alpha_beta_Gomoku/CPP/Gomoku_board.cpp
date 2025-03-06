@@ -1,6 +1,5 @@
 #include<iostream>
 #include<iomanip>
-
 #ifndef vector
 #include<vector>
 #endif
@@ -12,7 +11,7 @@ const int MAX_BOARD_SIZE = 19;
 
 #ifndef GOMOKU
 #define GOMOKU
-#include"Gomoku_board.h"
+#include"../H/Gomoku_board.h"
 #endif
 
 using namespace std;
@@ -51,7 +50,7 @@ using namespace std;
         //return 1 if the step is legal
         void gomoku_game::move(int color, pair<int,int> position){
             int py = position.first, px = position.second;
-            if( min(px,py)<=0 or max(px,py)>board_size )
+            if( min(px,py)<=0 || max(px,py)>board_size )
                 return;
             else if(board[py][px] != 0)
                 return;
@@ -78,7 +77,7 @@ using namespace std;
         
         bool gomoku_game::remove(int color, pair<int,int> position){
             int py = position.first, px = position.second;
-            if( min(px,py)<=0 or max(px,py)>board_size )
+            if( min(px,py)<=0 || max(px,py)>board_size )
                 return 0;
             else if(board[py][px] != color)
                 return 0;
@@ -88,9 +87,14 @@ using namespace std;
             }
         };
 
+        bool gomoku_game::out_of_bound(int y,int x){
+            return y>0 && y<=this->board_size &&\
+                x>0 && x<=this->board_size;
+        }
+
         void gomoku_game::reset(pair<int, int> position) {
             int py = position.first, px = position.second;
-            if (min(px, py) <= 0 or max(px, py) > board_size)
+            if (min(px, py) <= 0 || max(px, py) > board_size)
                 return;
             board[py][px] = 0;
         }

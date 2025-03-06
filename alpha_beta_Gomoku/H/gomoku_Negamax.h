@@ -30,10 +30,10 @@ class Negamax_agent: public gomoku_game{
     public:
         Negamax_agent(int n, bool fix_search_sequence = 0);
 
-        inline void print_path(vector< pair<int,int> > path_rec, int color=0);
+        void print_path(vector< pair<int,int> > path_rec, int color=0);
         // get next step by calling Negamax with IDS algorithm
         // calculate the optimal move and record in the reference (y,x), return the maximal depth 
-        int get_opt_move(int color, int& rec_y, int& rec_x, int limit_time, int limit_depth=10);
+        int get_opt_move(int color, int& rec_y, int& rec_x, int limit_time = 1000, int limit_depth=10);
         bool get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth);
 
         bool is_win(int color);
@@ -47,17 +47,19 @@ class Negamax_agent: public gomoku_game{
         };
         
         //return the maximal length of the position at board[py][px] with direction[dir]
-        inline int get_length_with_dir(int py, int px, int dir, bool reverse);
-        inline int calculate_score(int color);
-        inline int board_score();//score(Black) - score(White)
+        int get_length_with_dir(int py, int px, int dir, bool reverse);
+        int calculate_score(int color);
+        int board_score();//score(Black) - score(White)
 
         pair<int,int> visit_seq[20*20];
         vector< pair<int,int> > current_opt_path;
 
         int Negamax(int color,int depth, int alpha, int beta, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut = false);        
-        inline int detect_5(int color, pair<int,int> pt);// return 50 if player[color] can win when ze put stone on pt
-        inline int detect_4(int color, pair<int,int> pt);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
-        inline bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
+        
+        bool shape_cmp(string shape, pair<int,int> pt, int dy, int dx);
+        int detect_5(int color, pair<int,int> pt);// return 50 if player[color] can win when ze put stone on pt
+        int detect_4(int color, pair<int,int> pt);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
+        bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
         
         map<int, pair<int,int> > transposition_table;
 };

@@ -33,6 +33,7 @@ class gomoku_game{
         int board[MAX_BOARD_SIZE+2][MAX_BOARD_SIZE+2];
         int board_size;
         int current_color;// 1 if it is black's turn, -1 if it's white's
+        bool out_of_bound(int y, int x);
         bool remove(int color, pair<int,int> position);
         void reset(pair<int, int> position);
 };
