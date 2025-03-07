@@ -69,7 +69,8 @@ class Negamax_agent: public gomoku_game{
         int detect_5(int color, pair<int,int> pt);// return 50 if player[color] can win when ze put stone on pt
         // int detect_4(int color, pair<int,int> pt);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
         int detect_4(int color, pair<int,int> pt, int dir);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
-        bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
+        int detect_3(int color, pair<int,int> pt, int dir);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
+        bool Termination_state_cut(int color, vector< pair<int,int> >& candidate_pts);
         
         map<int, pair<int,int> > transposition_table;
 };

@@ -102,7 +102,7 @@ int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pa
 ///*
     if(use_gomoku_cut){
         vector< pair<int,int> > candidate_pts;
-        bool cut_occur = Gomoku_knowledge_cut(color, candidate_pts);
+        bool cut_occur = Termination_state_cut(color, candidate_pts);
         if(cut_occur){
             pair<int,int> opt_pt = {-1, -1};
             for(auto cut_pt: candidate_pts){
