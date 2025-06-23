@@ -24,6 +24,7 @@ board_evaluator::board_evaluator(gomoku_board *board, pair<int,int> *seq):
     };
 
     if(visit_seq == NULL){
+        cout<<"randomized initialize evaluator visit sequence\n";
         visit_seq = new pair<int,int>[ board->board_size * board->board_size ];
         for(int i=0;i< board->board_size * board->board_size; i++){
             visit_seq[i] = pair<int,int>(i/board->board_size, i%board->board_size);

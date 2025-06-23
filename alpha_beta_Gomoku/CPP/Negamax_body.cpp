@@ -1,56 +1,59 @@
 #include"../H/gomoku_Negamax.h"
 
+const int default_attack_check_depth = 2;
+
 Negamax_agent::Negamax_agent(int n, gomoku_board* board, bool fix_search_sequence):
-        Board(board)
-        {
-            //srand(time(0));
-            srand(0);
-            // this->Board = board;
-            this->visit_seq = new pair<int,int>[board->Board_size() * board->Board_size()];
+    Board(board), attack_check_depth(default_attack_check_depth)
+{
+    //srand(time(0));
+    srand(0);
+    // this->Board = board;
+    this->visit_seq = new pair<int,int>[board->Board_size() * board->Board_size()];
 
 
-            bool flag[MAX_BOARD_SIZE+1][MAX_BOARD_SIZE +1];
-            for(int i=0;i<=n;i++){
-                for(int j=0;j<=n;j++)
-                    flag[i][j] = 0;
+    bool flag[MAX_BOARD_SIZE+1][MAX_BOARD_SIZE +1];
+    for(int i=0;i<=n;i++){
+        for(int j=0;j<=n;j++)
+            flag[i][j] = 0;
+    }
+    flag[0][0] = 1;
+    for(int i=0;i<n*n;i++){
+        int px=i/n, py=i%n;
+        if(!fix_search_sequence){
+            do{
+                px = rand()%n+1, py = rand()%n+1;
             }
-            flag[0][0] = 1;
-            for(int i=0;i<n*n;i++){
-                int px=i/n, py=i%n;
-                if(!fix_search_sequence){
-                    do{
-                        px = rand()%n+1, py = rand()%n+1;
-                    }
-                    while(flag[py][px]);
-                }
-                visit_seq[i] = {py, px};
-                flag[py][px] = 1;
-            }
-            
-        };
+            while(flag[py][px]);
+        }
+        visit_seq[i] = {py, px};
+        flag[py][px] = 1;
+    }
+    
+    this->evaluator = new board_evaluator(Board, visit_seq);
+};
 
 void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
-            if(color)cout<<"current player is "<<(color==1?'O':'X')<<endl;
-            else cout<<"color is 0...?\n";
-            cout<<"path length:"<<path_rec.size()<<endl;
-            for(auto it:path_rec)cout<<"("<<it.first<<","<<it.second<<"), ";
-            cout<<endl;
-            for(int i=1; i<= this->Board->board_size; i++){
-                for(int j=1;j<=this->Board->board_size;j++){
-                    bool in_path=0;
-                    for(int k=0;k<path_rec.size();k++){
-                        if( path_rec[k] == pair<int,int>(i,j) ){
-                            in_path = 1;
-                            cout<<setw(3)<<k;
-                        };
-                    }
-                    if(!in_path){
-                        // Board->print_board();
-                        cout<<setw(3)<<( Board->get(i,j)==0?'.': (Board->get(i,j)==1? 'O':'X') );
-                    }
-                }
-                cout<<endl;
+    if(color)cout<<"current player is "<<(color==1?'O':'X')<<endl;
+    else cout<<"color is 0...?\n";
+    cout<<"path length:"<<path_rec.size()<<endl;
+    for(auto it:path_rec)cout<<"("<<it.first<<","<<it.second<<"), ";
+    cout<<endl;
+    for(int i=1; i<= this->Board->board_size; i++){
+        for(int j=1;j<=this->Board->board_size;j++){
+            bool in_path=0;
+            for(int k=0;k<path_rec.size();k++){
+                if( path_rec[k] == pair<int,int>(i,j) ){
+                    in_path = 1;
+                    cout<<setw(3)<<k;
+                };
             }
+            if(!in_path){
+                // Board->print_board();
+                cout<<setw(3)<<( Board->get(i,j)==0?'.': (Board->get(i,j)==1? 'O':'X') );
+            }
+        }
+        cout<<endl;
+    }
 }
 
 int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pair<int,int> > &opt_path_rec, int start_time=-1, int time_limit=1e9, bool use_gomoku_cut){
@@ -66,7 +69,12 @@ int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pa
 ///*
     if(use_gomoku_cut){
         vector< pair<int,int> > candidate_pts;
-        bool cut_occur = evaluator->Gomoku_knowledge_cut(color, candidate_pts);
+        // bool cut_occur = evaluator->Gomoku_knowledge_cut(color, candidate_pts);
+        pair<int,int> atk_pt = evaluator->attack_to_win(color, attack_check_depth);
+        pair<int,int> def_pt = evaluator->attack_to_win(-color, attack_check_depth);
+
+        bool cut_occur = Board->in_board(atk_pt) || Board->in_board(def_pt);
+
         if(cut_occur){
             pair<int,int> opt_pt = {-1, -1};
             for(auto cut_pt: candidate_pts){

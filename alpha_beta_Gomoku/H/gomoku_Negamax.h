@@ -54,4 +54,6 @@ class Negamax_agent{
         bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
         
         map<int, pair<int,int> > transposition_table;
+
+        int attack_check_depth;
 };

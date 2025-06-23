@@ -21,3 +21,5 @@ evaluate the board situation, use Gomoku knowledge
 use Gomoku problems as benchmark to enhance board_evaluator
 
 
+## ref.
+- https://587.renju.org.tw/
