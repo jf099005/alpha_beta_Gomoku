@@ -61,6 +61,10 @@ int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pa
         return color*(evaluator->board_score());
     }
 
+    if( evaluator->attack_to_win(color, 1) ){
+        
+    }
+
     if(evaluator->is_win(color))return 1e9+7;
     else if(evaluator->is_win(-color))return -(1e9+7);
     int opt_score = -1e9;
@@ -70,12 +74,12 @@ int Negamax_agent::Negamax(int color, int depth, int alpha, int beta, vector< pa
     if(use_gomoku_cut){
         vector< pair<int,int> > candidate_pts;
         // bool cut_occur = evaluator->Gomoku_knowledge_cut(color, candidate_pts);
-        pair<int,int> atk_pt = evaluator->attack_to_win(color, attack_check_depth);
-        pair<int,int> def_pt = evaluator->attack_to_win(-color, attack_check_depth);
+        // pair<int,int> atk_pt = evaluator->attack_to_win(color, attack_check_depth);
+        // pair<int,int> def_pt = evaluator->attack_to_win(-color, attack_check_depth);
 
-        bool cut_occur = Board->in_board(atk_pt) || Board->in_board(def_pt);
-
-        if(cut_occur){
+        bool attack_cut_occur = evaluator->attack_to_win(color, attack_check_depth);
+        bool defend_cut_occur = evaluator->attack_to_win(-color, attack_check_depth);
+        if(defend_cut_occur){
             pair<int,int> opt_pt = {-1, -1};
             for(auto cut_pt: candidate_pts){
                 path_rec[path_rec.size()-depth] = cut_pt;

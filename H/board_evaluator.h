@@ -28,17 +28,23 @@ class board_evaluator{
         
         bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
         bool is_win(int color);
-        pair<int,int> attack_to_win(int attacker, int depth, bool show_detail = false);
+        bool attack_to_win(int attacker, int depth, bool show_detail = false);
 
+        //only when attack_to_win is true
+        pair<int,int> get_victory_move(int attacker, int ref_depth);
+        
 
     private:
+        static const int num_direction ;
+        static const int direction[4][2];
+        
 
         static const vector<string> one_step_draw_shape;
         static const vector<string> one_step_shape;
         static const vector<string> two_step_draw_shape;
+        static const map<string, vector<int> > defend_positions;
+        void initialize_defend_positions();
 
-        static const int num_direction ;
-        static const int direction[4][2];
         static const int score_table[3][6];
 
         map<STATE, vector<string> >state_map;

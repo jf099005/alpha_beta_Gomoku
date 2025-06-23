@@ -1,18 +1,52 @@
 #include"../H/board_evaluator.h"
 #include<cassert>
 #include<cstdlib>
+#include <string>
+#include <vector>
 
-const std::vector<std::string> board_evaluator::one_step_draw_shape = { ".OOOO.", "OOO.O.OOO", "OO.OO.OO", "O.OOO.O" };
-const std::vector<std::string> board_evaluator::one_step_shape = { ".OOOO", "O.OOO", "OO.OO" };
-const std::vector<std::string> board_evaluator::two_step_draw_shape = { ".OOO.", ".OO.O.", ".O.O.O.O.", "OOO...OOO" };
+const vector<std::string> board_evaluator::one_step_draw_shape = { ".OOOO.", "OOO.O.OOO", "OO.OO.OO", "O.OOO.O" };
+const vector<std::string> board_evaluator::one_step_shape = { ".OOOO", "O.OOO", "OO.OO" };
+const vector<std::string> board_evaluator::two_step_draw_shape = { ".OOO..", ".OO.O.", ".O.O.O.O.", "OOO...OOO" };
 
-const int board_evaluator:: num_direction = 4;
 const int board_evaluator:: direction[4][2] = { {1,0},{0,1},{1,1},{1,-1}};
 const int board_evaluator::score_table[3][6] = {
     {0,20,100,500,5000,100000},
     {0,0,20,100,500,100000},
     {0,0,0,0,0,100000}
 };
+
+
+
+const map<string, vector<int> > board_evaluator::defend_positions = {
+        {".OOOO", 
+            {0}
+        },
+        
+        {"O.OOO",
+            {1}
+        },
+
+        {"OO.OO",
+            {2}
+        },
+
+        {".OOO..",
+            {0, 4, 5}
+        },
+
+        {".OO.O.", 
+            {0, 3, 5}
+        },
+
+        { ".O.O.O.O.", 
+            {2, 4, 6}
+        },
+
+        {"OOO...OOO",
+            {3, 4, 5}
+        }
+
+    };
 
 board_evaluator::board_evaluator(gomoku_board *board, pair<int,int> *seq):
     visit_seq(seq), Board(board)
@@ -266,7 +300,9 @@ bool board_evaluator::is_win(int color){
     return 0;
 }
 
-pair<int,int> board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
+
+
+bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
     assert(attacker == 1 || attacker == -1);
     assert(depth >= 0);
     
@@ -278,7 +314,7 @@ pair<int,int> board_evaluator::attack_to_win(int attacker, int depth, bool show_
         std::cin.get();
     }
     if(depth == 0)
-        return {-1, -1};
+        return false;
     
     for(int i=0; i<Board->board_size * Board->board_size; i++){
         pair<int,int> atk_pt = visit_seq[i];//cur_pt: current visited point
@@ -304,7 +340,7 @@ pair<int,int> board_evaluator::attack_to_win(int attacker, int depth, bool show_
         if(winning || one_step_draw_attack){
             // cout<<"return\n";
             Board->erase(attacker, atk_pt);
-            return atk_pt;
+            return true;
         }
         
         bool attack_success = false;
@@ -340,8 +376,71 @@ pair<int,int> board_evaluator::attack_to_win(int attacker, int depth, bool show_
                 }
 
                 if(defend_success){
-                    pair<int,int> nx_atk = attack_to_win(attacker, depth-1);
-                    defend_success &= !(Board->in_board(nx_atk));
+                    defend_success &= attack_to_win(attacker, depth-1);
+                    // defend_success &= !(Board->in_board(nx_atk));
+                }
+                Board->erase(-attacker, def_pt);
+                attack_success &= (!defend_success);
+            }
+        }
+        Board->erase(attacker, atk_pt);
+        if(attack_success)
+            return true;
+    }
+    return false;
+}
+
+pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
+    assert(attacker == 1 || attacker == -1);
+    assert(depth >= 0);
+    
+    if(depth == 0)
+        return {-1, -1};
+    
+    for(int i=0; i<Board->board_size * Board->board_size; i++){
+        pair<int,int> atk_pt = visit_seq[i];//cur_pt: current visited point
+        if(!Board->is_valid_move(atk_pt))
+            continue;
+        Board->add_stone(attacker, atk_pt);
+        // int valid_attack = detect_4(attacker, atk_pt);
+
+        bool one_step_draw_attack = match_attack(attacker, atk_pt, STATE::one_step_draw);
+        bool one_step_attack = match_attack(attacker, atk_pt, STATE::one_step);
+        bool two_step_attack = match_attack(attacker, atk_pt, STATE::two_step_draw);
+
+        int winning = detect_5(attacker, atk_pt);
+        
+        if(winning || one_step_draw_attack){
+            // cout<<"return\n";
+            Board->erase(attacker, atk_pt);
+            return {0,0};
+        }
+        
+        bool attack_success = false;
+        if(two_step_attack || one_step_attack){
+            attack_success = true;
+
+
+            for(int j=0; j<Board->board_size * Board->board_size && attack_success; j++){
+                pair<int,int> def_pt = visit_seq[j];// move to defend the attack
+                if(!Board->is_valid_move(def_pt))
+                    continue;
+
+                Board->add_stone(-attacker, def_pt);
+                if(detect_5(-attacker, def_pt)){
+                    attack_success = false;
+                    Board->erase(-attacker, def_pt);
+                    continue;
+                }
+                bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);
+                bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step_draw);
+
+                bool defend_success = !(one_step_attack_after || two_step_attack_after);
+                defend_success |= (!one_step_attack_after) && match_attack(-attacker, def_pt, STATE::one_step);
+
+                if(defend_success){
+                    defend_success &= attack_to_win(attacker, depth-1);
+                    // defend_success &= !(Board->in_board(nx_atk));
                 }
                 Board->erase(-attacker, def_pt);
                 attack_success &= (!defend_success);
@@ -353,3 +452,4 @@ pair<int,int> board_evaluator::attack_to_win(int attacker, int depth, bool show_
     }
     return {-1, -1};
 }
+
