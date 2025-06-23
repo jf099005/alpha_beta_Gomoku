@@ -9,7 +9,7 @@ class board_evaluator{
         enum class STATE{
             one_step_draw = 5,
             one_step = 4,
-            two_step_draw = 3
+            two_step = 3
         };
 
         //return the maximal length of the position at board[py][px] with direction[dir]
@@ -41,9 +41,9 @@ class board_evaluator{
 
         static const vector<string> one_step_draw_shape;
         static const vector<string> one_step_shape;
-        static const vector<string> two_step_draw_shape;
+        static const vector<string> two_step_shape;
+
         static const map<string, vector<int> > defend_positions;
-        void initialize_defend_positions();
 
         static const int score_table[3][6];
 

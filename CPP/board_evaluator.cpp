@@ -6,7 +6,7 @@
 
 const vector<std::string> board_evaluator::one_step_draw_shape = { ".OOOO.", "OOO.O.OOO", "OO.OO.OO", "O.OOO.O" };
 const vector<std::string> board_evaluator::one_step_shape = { ".OOOO", "O.OOO", "OO.OO" };
-const vector<std::string> board_evaluator::two_step_draw_shape = { ".OOO..", ".OO.O.", ".O.O.O.O.", "OOO...OOO" };
+const vector<std::string> board_evaluator::two_step_shape = { ".OOO..", ".OO.O.", ".O.O.O.O.", "OOO...OOO" };
 
 const int board_evaluator:: direction[4][2] = { {1,0},{0,1},{1,1},{1,-1}};
 const int board_evaluator::score_table[3][6] = {
@@ -54,7 +54,7 @@ board_evaluator::board_evaluator(gomoku_board *board, pair<int,int> *seq):
     state_map = {
         {STATE::one_step_draw, one_step_draw_shape},
         {STATE::one_step,   one_step_shape},
-        {STATE::two_step_draw, two_step_draw_shape}
+        {STATE::two_step, two_step_shape}
     };
 
     if(visit_seq == NULL){
@@ -325,7 +325,7 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
 
         bool one_step_draw_attack = match_attack(attacker, atk_pt, STATE::one_step_draw);
         bool one_step_attack = match_attack(attacker, atk_pt, STATE::one_step);
-        bool two_step_attack = match_attack(attacker, atk_pt, STATE::two_step_draw);
+        bool two_step_attack = match_attack(attacker, atk_pt, STATE::two_step);
 
         int winning = detect_5(attacker, atk_pt);
         if(show_detail){
@@ -333,7 +333,7 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
             cout<<"\t result:"<<one_step_attack<<"/"<<two_step_attack<<endl;
         }
         if(one_step_attack && show_detail)match_attack(attacker, atk_pt, STATE::one_step, true);
-        if(two_step_attack && show_detail)match_attack(attacker, atk_pt, STATE::two_step_draw, true);
+        if(two_step_attack && show_detail)match_attack(attacker, atk_pt, STATE::two_step, true);
         // std::cout << "Press Enter to continue...";
         // std::cin.get();
 
@@ -360,7 +360,7 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
                     continue;
                 }
                 bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);
-                bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step_draw);
+                bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step);
 
                 bool defend_success = !(one_step_attack_after || two_step_attack_after);
                 defend_success |= (!one_step_attack_after) && match_attack(-attacker, def_pt, STATE::one_step);
@@ -406,7 +406,7 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
 
         bool one_step_draw_attack = match_attack(attacker, atk_pt, STATE::one_step_draw);
         bool one_step_attack = match_attack(attacker, atk_pt, STATE::one_step);
-        bool two_step_attack = match_attack(attacker, atk_pt, STATE::two_step_draw);
+        bool two_step_attack = match_attack(attacker, atk_pt, STATE::two_step);
 
         int winning = detect_5(attacker, atk_pt);
         
@@ -433,7 +433,7 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
                     continue;
                 }
                 bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);
-                bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step_draw);
+                bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step);
 
                 bool defend_success = !(one_step_attack_after || two_step_attack_after);
                 defend_success |= (!one_step_attack_after) && match_attack(-attacker, def_pt, STATE::one_step);
