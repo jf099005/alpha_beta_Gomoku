@@ -1,34 +1,28 @@
-#ifndef GOMOKU
-#define GOMOKU
+#pragma once
 #include"Gomoku_board.h"
-#endif
 
 // #ifndef Memorize
 // #define Memorize
 // #include"memorize_search.h"
 // #endif
 
-#ifndef iostream
+// #ifndef BOARD_EVALUATOR
+// #define BOARD_EVALUATOR
+#include"board_evaluator.h"
+// #endif
+
 #include<iostream>
-#endif
-
-#ifndef chrono
 #include <chrono>
-#endif
-
-#ifndef algorithm
 #include<algorithm>
-#endif
-
-#ifndef time
 #include<ctime>
-#endif
 #include<map>
 
 using namespace std;
-class Negamax_agent: public gomoku_game{
+class Negamax_agent{
     public:
-        Negamax_agent(int n, bool fix_search_sequence = 0);
+        gomoku_board *Board;
+        board_evaluator *evaluator;
+        Negamax_agent(int n, gomoku_board* board,  bool fix_search_sequence = 0);
 
         void print_path(vector< pair<int,int> > path_rec, int color=0);
         // get next step by calling Negamax with IDS algorithm
@@ -36,22 +30,20 @@ class Negamax_agent: public gomoku_game{
         int get_opt_move(int color, int& rec_y, int& rec_x, int limit_time = 1000, int limit_depth=10);
         bool get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth);
 
-        bool is_win(int color);
-
-        int num_direction = 4;
-        int direction[4][2] = { {1,0},{0,1},{1,1},{1,-1}};
-        int score_table[3][6] = {
-            {0,20,100,500,5000,100000},
-			{0,0,20,100,500,100000},
-			{0,0,0,0,0,100000}
-        };
+        // int num_direction = 4;
+        // int direction[4][2] = { {1,0},{0,1},{1,1},{1,-1}};
+        // int score_table[3][6] = {
+        //     {0,20,100,500,5000,100000},
+		// 	{0,0,20,100,500,100000},
+		// 	{0,0,0,0,0,100000}
+        // };
         
-        //return the maximal length of the position at board[py][px] with direction[dir]
-        int get_length_with_dir(int py, int px, int dir, bool reverse);
-        int calculate_score(int color);
-        int board_score();//score(Black) - score(White)
+        // //return the maximal length of the position at board[py][px] with direction[dir]
+        // int get_length_with_dir(int py, int px, int dir, bool reverse);
+        // int calculate_score(int color);
+        // int board_score();//score(Black) - score(White)
 
-        pair<int,int> visit_seq[20*20];
+        pair<int,int>* visit_seq;
         vector< pair<int,int> > current_opt_path;
 
         int Negamax(int color,int depth, int alpha, int beta, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut = false);        
@@ -62,4 +54,6 @@ class Negamax_agent: public gomoku_game{
         bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
         
         map<int, pair<int,int> > transposition_table;
+
+        int attack_check_depth;
 };
