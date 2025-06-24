@@ -19,8 +19,8 @@ int main(){
     pair<int,int> atk_pt;
 
     int color = -1;
-    // board.add_stone(1, {8,11});
-    // board.add_stone(-1, {8, 10});
+    board.add_stone(-1, {5,7});
+    board.add_stone(1, {6, 7});
     // board.add_stone(1, {10, 9});
     // board.add_stone(-1, {11,10});
     // board.add_stone(1, {9,10});
@@ -28,7 +28,7 @@ int main(){
 
     for(int i=1;i<=4;i++){
         cout<<"search depth: "<<i<<endl;
-        atk_pt = eval.attack_to_win(color, i);
+        atk_pt = eval.get_victory_move(color, i);
         if(board.in_board(atk_pt)){
             cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
             // eval.attack_to_win(1, i, true);

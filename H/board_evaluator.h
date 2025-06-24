@@ -26,16 +26,15 @@ class board_evaluator{
         int detect_4(int color, pair<int,int> pt);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
         bool match_attack(int color, pair<int,int> pt, STATE attack_type, bool show_detail);// return 0 if there's no 4, -4 if there's only a dead 4, 4 if there's a live 4 when player put stone on pt
         
-        bool Gomoku_knowledge_cut(int color, vector< pair<int,int> >& candidate_pts);
         bool is_win(int color);
         bool attack_to_win(int attacker, int depth, bool show_detail = false);
-
+        bool can_defend(int defender, int depth, pair<int,int> atk_pt);
         //only when attack_to_win is true
-        pair<int,int> get_victory_move(int attacker, int ref_depth);
+        pair<int,int> get_victory_move(int attacker, int depth);
         
 
     private:
-        static const int num_direction ;
+        static const int num_direction;
         static const int direction[4][2];
         
 
