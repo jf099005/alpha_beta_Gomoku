@@ -4,7 +4,7 @@ using namespace std;
 int main(){
     gomoku_board board(15);
 
-    string problems = "./board";
+    string problems = ".\\board\\russian";
     board_loader loader(problems, &board);
     int n = 1;
     while(n--)
@@ -18,22 +18,33 @@ int main(){
     vector<pair<int,int>> test;
     pair<int,int> atk_pt;
 
-    int color = -1;
-    // board.add_stone(1, {8,11});
-    // board.add_stone(-1, {8, 10});
+    int color = 1;
+    // board.add_stone(-1, {5,9});
+    // cout<<"can defend:\n";
+    // cout<<eval.can_defend(1, 1, {5,9});
+    // board.add_stone(1, {7,7});
+    // cout<<eval.match_attack(-1, {5,9}, board_evaluator::STATE::two_step, 1);
     // board.add_stone(1, {10, 9});
     // board.add_stone(-1, {11,10});
     // board.add_stone(1, {9,10});
     // board.add_stone(-1, {7,9});
-
-    for(int i=1;i<=4;i++){
-        cout<<"search depth: "<<i<<endl;
-        atk_pt = eval.attack_to_win(color, i);
-        if(board.in_board(atk_pt)){
-            cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
-            // eval.attack_to_win(1, i, true);
-            break;
+    while(1){
+        for(int i=1;i<=4;i++){
+            cout<<"search depth: "<<i<<endl;
+            atk_pt = eval.get_victory_move(color, i);
+            if(board.in_board(atk_pt)){
+                cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
+                
+                cout<< eval.attack_to_win(color, i, true)<<endl;
+                break;
+            }
         }
-    }    
+        board.add_stone(color, atk_pt);
+        board.print_board();
+        cout<<"input your point:\n";
+        int y,x;cin>>y>>x;
+        board.add_stone(-color, {y,x});    
+        board.print_board();
+    }
     board.print_board();
 }

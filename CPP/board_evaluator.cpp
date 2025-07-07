@@ -299,7 +299,8 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
         // std::cin.get();
 
         if(winning || one_step_draw_attack){
-            // cout<<"return\n";
+            cout<<"return\n";
+            cout<<winning<<"/"<<one_step_draw_attack<<endl;
             Board->erase(attacker, atk_pt);
             return true;
         }
@@ -332,11 +333,22 @@ bool board_evaluator::can_defend(int defender, int depth, pair<int,int> atk_pt){
         }
         bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);
         bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step);
+        
 
         bool defend_success = !(one_step_attack_after || two_step_attack_after);
+//         if(def_pt.first == 7 && def_pt.second == 7)
+// {        Board->print_board();
+//         cout<<attacker<<",  "<<atk_pt.first<<","<<atk_pt.second<<endl;
+//         cout<<def_pt.first<<","<<def_pt.second<<": "<<one_step_attack_after<<"/"<<two_step_attack_after<<endl;
+//     cout<<(one_step_attack_after || two_step_attack_after)<<endl;
+//     cout<<(!(one_step_attack_after || two_step_attack_after))<<endl;
+//     cout<<defend_success<<endl;
+//     cout<<attack_to_win(attacker, depth-1, true)<<endl;
+// }
+
         defend_success |= (!one_step_attack_after) && match_attack(defender, def_pt, STATE::one_step);
         if(defend_success){
-            defend_success &= attack_to_win(attacker, depth-1);
+            defend_success &= !attack_to_win(attacker, depth-1);
         }
         Board->erase(defender, def_pt);
         if(defend_success)
@@ -394,7 +406,7 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
                 defend_success |= (!one_step_attack_after) && match_attack(-attacker, def_pt, STATE::one_step);
 
                 if(defend_success){
-                    defend_success &= attack_to_win(attacker, depth-1);
+                    defend_success &= !attack_to_win(attacker, depth-1);
                     // defend_success &= !(Board->in_board(nx_atk));
                 }
                 Board->erase(-attacker, def_pt);
