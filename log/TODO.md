@@ -1,5 +1,11 @@
 # TODO
 
+## Evaluation
+- use Linear programming to adjust the points of each stone-shape
+
+## Choose point(not yet implemented)
+- write an evaluation function to filter useless points
+
 ## Algotihhm
 - history heuristic
 - opening database

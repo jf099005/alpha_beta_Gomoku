@@ -299,8 +299,8 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
         // std::cin.get();
 
         if(winning || one_step_draw_attack){
-            cout<<"return\n";
-            cout<<winning<<"/"<<one_step_draw_attack<<endl;
+            // cout<<"return\n";
+            // cout<<winning<<"/"<<one_step_draw_attack<<endl;
             Board->erase(attacker, atk_pt);
             return true;
         }
@@ -327,8 +327,8 @@ bool board_evaluator::can_defend(int defender, int depth, pair<int,int> atk_pt){
             continue;
 
         Board->add_stone(defender, def_pt);
-        if(detect_5(-attacker, def_pt)){
-            Board->erase(-attacker, def_pt);
+        if(detect_5(defender, def_pt)){
+            Board->erase(defender, def_pt);
             return true;
         }
         bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);

@@ -23,7 +23,7 @@ class Negamax_agent{
         gomoku_board *Board;
         board_evaluator *evaluator;
         Negamax_agent(int n, gomoku_board* board,  bool fix_search_sequence = 0);
-
+        ~Negamax_agent();
         void print_path(vector< pair<int,int> > path_rec, int color=0);
         // get next step by calling Negamax with IDS algorithm
         // calculate the optimal move and record in the reference (y,x), return the maximal depth 
@@ -36,4 +36,8 @@ class Negamax_agent{
         map<int, pair<int,int> > transposition_table;
 
         int attack_check_depth;
+        
+        int* visited_node_num;
+        void print_info();
+        void reset_record();
 };

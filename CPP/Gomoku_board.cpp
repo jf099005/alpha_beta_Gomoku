@@ -78,6 +78,12 @@ int gomoku_board::Board_size(){
 
 bool gomoku_board::erase(int color, pair<int,int> position){
     int py = position.first, px = position.second;
+    
+    if(!(_board[py][px] == color)){
+        cout<<"erase error: "<<py<<","<<px<<"  color:"<<color<<endl;
+        print_board();
+    }
+    
     assert(_board[py][px] == color);
     if( min(px,py)<=0 || max(px,py)>board_size )
         return 0;
