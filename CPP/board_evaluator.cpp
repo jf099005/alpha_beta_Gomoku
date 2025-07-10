@@ -66,6 +66,16 @@ board_evaluator::board_evaluator(gomoku_board *board, pair<int,int> *seq):
             visit_seq[i] = pair<int,int>(i/board->board_size, i%board->board_size);
         }
     }
+
+    attack_to_win_calls = new int[20];
+    can_defend_calls = new int[20];
+
+    reset_info();
+}
+
+board_evaluator::~board_evaluator(){
+    delete [] attack_to_win_calls;
+    delete [] can_defend_calls;
 }
 
 int board_evaluator::get_length_with_dir(int py, int px, int dir, bool reverse = 0){
@@ -276,6 +286,8 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
     if(depth == 0)
         return false;
     
+    attack_to_win_calls[depth]++;
+
     for(int i=0; i<Board->board_size * Board->board_size; i++){
         pair<int,int> atk_pt = visit_seq[i];//cur_pt: current visited point
         if(!Board->is_valid_move(atk_pt))
@@ -321,6 +333,7 @@ bool board_evaluator::attack_to_win(int attacker, int depth, bool show_detail){
 
 bool board_evaluator::can_defend(int defender, int depth, pair<int,int> atk_pt){
     int attacker = -defender;
+    can_defend_calls[depth]++;
     for(int j=0; j<Board->board_size * Board->board_size; j++){
         pair<int,int> def_pt = visit_seq[j];// move to defend the attack
         if(!Board->is_valid_move(def_pt))
@@ -357,6 +370,33 @@ bool board_evaluator::can_defend(int defender, int depth, pair<int,int> atk_pt){
     return false;
 }
 
+void board_evaluator::reset_info(){
+    // this->attack_to_win_calls = 0;
+    // this->can_defend_calls = 0;
+    for(int i=0;i<20;i++){
+        attack_to_win_calls[i] = 0;
+        can_defend_calls[i] = 0;
+    }
+}
+
+void board_evaluator::print_info(){
+    cout<<"\t attack-to-win calls:"<<endl;
+    cout<<"\t";
+    for(int i=1;i<20;i++){
+        cout<<attack_to_win_calls[i]<<" ";
+        if(attack_to_win_calls[i] == 0)
+            break;
+    }
+    cout<<"\n\t can-defend calls:"<<endl;
+
+    for(int i=1;i<20;i++){
+        cout<<can_defend_calls[i]<<" ";
+        if(can_defend_calls[i] == 0)
+            break;
+    }
+
+}
+
 pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
     assert(attacker == 1 || attacker == -1);
     assert(depth >= 0);
@@ -364,6 +404,7 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
     if(depth == 0)
         return {-1, -1};
     
+    attack_to_win_calls[depth]++;
     for(int i=0; i<Board->board_size * Board->board_size; i++){
         pair<int,int> atk_pt = visit_seq[i];//cur_pt: current visited point
         if(!Board->is_valid_move(atk_pt))
@@ -387,7 +428,7 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
         if(two_step_attack || one_step_attack){
             attack_success = true;
 
-
+            can_defend_calls[depth]++;
             for(int j=0; j<Board->board_size * Board->board_size && attack_success; j++){
                 pair<int,int> def_pt = visit_seq[j];// move to defend the attack
                 if(!Board->is_valid_move(def_pt))

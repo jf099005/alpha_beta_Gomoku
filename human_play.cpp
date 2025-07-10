@@ -1,10 +1,12 @@
 #include"./H/gomoku_Negamax.h"
 int main(){
     int n= 15;
+    cout<<"start\n";
     gomoku_board board(n);
     Negamax_agent agent(n, &board, true);
     int human_color = 1;
     int current_color = 1;
+    cout<<"HAHA\n";
     while( !agent.evaluator->is_win(1) && !agent.evaluator->is_win(-1) ){
         int y,x;
         if(current_color == human_color){

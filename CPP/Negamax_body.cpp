@@ -58,6 +58,20 @@ void Negamax_agent::print_info(){
         if(visited_node_num[i] == 0)
             break;
     }
+    cout<<"\t attack-to-win calls:"<<endl;
+    cout<<"\t";
+    for(int i=1;i<20;i++){
+        cout<<evaluator->attack_to_win_calls[i]<<" ";
+        if(evaluator->attack_to_win_calls[i] == 0)
+            break;
+    }
+    cout<<"\n\t can-defend calls:"<<endl;
+
+    for(int i=1;i<20;i++){
+        cout<<evaluator->can_defend_calls[i]<<" ";
+        if(evaluator->can_defend_calls[i] == 0)
+            break;
+    }
     cout<<endl;
 }
 
@@ -65,6 +79,7 @@ void Negamax_agent::reset_record(){
     for(int i=0; i<20; i++){
         visited_node_num[i] = 0;
     }
+    evaluator->reset_info();
 }
 
 void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
@@ -102,11 +117,11 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
         return color*(evaluator->board_score());
     }
 
-    if( evaluator->attack_to_win(color, this->attack_check_depth) ){
-        pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
-        opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
-        return 1e9;
-    }
+    // if( evaluator->attack_to_win(color, this->attack_check_depth) ){
+    //     pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
+    //     opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
+    //     return 1e9;
+    // }
 
     if(evaluator->is_win(color))return MAX_BOARD_SCORE;
     else if(evaluator->is_win(-color))return -(MAX_BOARD_SCORE);
@@ -124,7 +139,9 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
         bool defend_cut_occur = evaluator->attack_to_win(-color, this->attack_check_depth);
         
         if(attack_cut_occur){
-            return 1e9;
+            pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
+            opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
+            return MAX_BOARD_SCORE;
         }
         
         if(defend_cut_occur){

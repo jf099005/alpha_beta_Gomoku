@@ -15,6 +15,7 @@ class board_evaluator{
         //return the maximal length of the position at board[py][px] with direction[dir]
         
         board_evaluator(gomoku_board* board, pair<int,int>* visit_seq = NULL);
+        ~board_evaluator();
         
         int get_length_with_dir(int py, int px, int dir, bool reverse);
         int calculate_score(int color);
@@ -33,6 +34,11 @@ class board_evaluator{
         pair<int,int> get_victory_move(int attacker, int depth);
         
 
+        int* attack_to_win_calls;
+        int* can_defend_calls;
+        void reset_info();
+        void print_info();
+
     private:
         static const int num_direction;
         static const int direction[4][2];
@@ -47,5 +53,4 @@ class board_evaluator{
         static const int score_table[3][6];
 
         map<STATE, vector<string> >state_map;
-        
 };
