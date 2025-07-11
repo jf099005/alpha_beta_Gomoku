@@ -7,7 +7,9 @@ int main(){
 
     string problems = "./board/Nakamura/";
     board_loader loader(problems, &board);
-    int n = 10;
+    int n;
+    cout<<"input problem id:";
+    cin>>n;
     while(n--)
         loader.next();
     // loader.load_problem("./bug_board.txt");

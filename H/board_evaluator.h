@@ -1,15 +1,22 @@
 #pragma once
 #include"Gomoku_board.h"
 #include<map>
+
+#ifndef NOT_VALID_ATTACK
+#define NOT_VALID_ATTACK 0
+#endif
+
 class board_evaluator{
     public:
         gomoku_board *Board;
         pair<int,int>* visit_seq;
 
         enum class STATE{
-            one_step_draw = 5,
-            one_step = 4,
-            two_step = 3
+            win = 100,
+            one_step_draw = 5, //one move to win and cannot be defended
+            one_step = 4, //one move to win but can be defended
+            two_step = 3, //two step to win, and if opponent don't defend then it will success
+            none = 0
         };
 
         //return the maximal length of the position at board[py][px] with direction[dir]
@@ -33,11 +40,16 @@ class board_evaluator{
         //only when attack_to_win is true
         pair<int,int> get_victory_move(int attacker, int depth);
         
-
         int* attack_to_win_calls;
         int* can_defend_calls;
         void reset_info();
         void print_info();
+
+        // if is not attack then return 0
+        // if is attack then return the priority of the attack(1 stand for 1-move to win, 2 stands for 2-move to win, etc.)
+        STATE is_valid_attack(int attacker, pair<int,int> atk_pt);
+        bool is_valid_defend(int defender, pair<int,int> def_pt, pair<int,int> atk_pt);
+        
 
     private:
         static const int num_direction;

@@ -1,50 +1,53 @@
 #include"./H/gomoku_Negamax.h"
 #include"board_loader.cpp"
+#include<ctime>
 using namespace std;
 int main(){
     gomoku_board board(15);
 
-    string problems = ".\\board\\russian";
+    string problems = "./board/Nakamura/";
     board_loader loader(problems, &board);
-    int n = 1;
+    int n;
+    cout<<"input problem id:";
+    // cin>>n;
+    n= 7;
     while(n--)
         loader.next();
-    // loader.load_problem("./question_board2.txt");
+    // loader.load_problem("./bug_board.txt");
+    board.add_stone(1, {9, 10});
+
     cout<< loader.current_problem() <<endl;
     board.print_board();
 
     board_evaluator eval(&board);
 
-    vector<pair<int,int>> test;
-    pair<int,int> atk_pt;
-
     int color = 1;
-    // board.add_stone(-1, {5,9});
-    // cout<<"can defend:\n";
-    // cout<<eval.can_defend(1, 1, {5,9});
-    // board.add_stone(1, {7,7});
-    // cout<<eval.match_attack(-1, {5,9}, board_evaluator::STATE::two_step, 1);
-    // board.add_stone(1, {10, 9});
-    // board.add_stone(-1, {11,10});
-    // board.add_stone(1, {9,10});
-    // board.add_stone(-1, {7,9});
+    int current_color = 1;
     while(1){
-        for(int i=1;i<=4;i++){
-            cout<<"search depth: "<<i<<endl;
-            atk_pt = eval.get_victory_move(color, i);
-            if(board.in_board(atk_pt)){
-                cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
-                
-                cout<< eval.attack_to_win(color, i, true)<<endl;
-                break;
+        if(color == current_color){
+            pair<int,int> atk_pt;
+            
+            for(int i=1;i<=4;i++){
+                cout<<"search depth: "<<i<<endl;
+                eval.reset_info();
+                atk_pt = eval.get_victory_move(color, i);
+                if(board.in_board(atk_pt)){
+                    cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
+                    // eval.attack_to_win(1, i, true);
+                    break;
+                }
+
             }
+            board.add_stone(color, atk_pt);
+            eval.print_info();
+            board.print_board();
         }
-        board.add_stone(color, atk_pt);
-        board.print_board();
-        cout<<"input your point:\n";
-        int y,x;cin>>y>>x;
-        board.add_stone(-color, {y,x});    
-        board.print_board();
+        else{
+            cout<<"input your move:\n";        
+            int y,x;cin>>y>>x;
+            board.add_stone(-color, {y,x});
+            board.print_board();
+        }
     }
     board.print_board();
 }

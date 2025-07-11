@@ -59,13 +59,13 @@ void Negamax_agent::print_info(){
             break;
     }
     cout<<"\t attack-to-win calls:"<<endl;
-    cout<<"\t";
+    cout<<"\t\t";
     for(int i=1;i<20;i++){
         cout<<evaluator->attack_to_win_calls[i]<<" ";
         if(evaluator->attack_to_win_calls[i] == 0)
             break;
     }
-    cout<<"\n\t can-defend calls:"<<endl;
+    cout<<"\n\t can-defend calls:"<<endl<<"\t\t";
 
     for(int i=1;i<20;i++){
         cout<<evaluator->can_defend_calls[i]<<" ";
