@@ -455,32 +455,6 @@ pair<int,int> board_evaluator::get_victory_move(int attacker, int depth){
         bool attack_success = false;
         if(two_step_attack || one_step_attack){
             attack_success = !can_defend(-attacker, depth, atk_pt);
-
-            // can_defend_calls[depth]++;
-            // for(int j=0; j<Board->board_size * Board->board_size && attack_success; j++){
-            //     pair<int,int> def_pt = visit_seq[j];// move to defend the attack
-            //     if(!Board->is_valid_move(def_pt))
-            //         continue;
-
-            //     Board->add_stone(-attacker, def_pt);
-            //     if(detect_5(-attacker, def_pt)){
-            //         attack_success = false;
-            //         Board->erase(-attacker, def_pt);
-            //         continue;
-            //     }
-            //     bool one_step_attack_after = match_attack(attacker, atk_pt, STATE::one_step);
-            //     bool two_step_attack_after = match_attack(attacker, atk_pt, STATE::two_step);
-
-            //     bool defend_success = !(one_step_attack_after || two_step_attack_after);
-            //     defend_success |= (!one_step_attack_after) && match_attack(-attacker, def_pt, STATE::one_step);
-
-            //     if(defend_success){
-            //         defend_success &= !attack_to_win(attacker, depth-1);
-            //         // defend_success &= !(Board->in_board(nx_atk));
-            //     }
-            //     Board->erase(-attacker, def_pt);
-            //     attack_success &= (!defend_success);
-            // }
         }
         Board->erase(attacker, atk_pt);
         if(attack_success)

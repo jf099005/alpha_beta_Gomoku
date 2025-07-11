@@ -106,7 +106,7 @@ void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
     }
 }
 
-int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, vector< pair<int,int> > &opt_path_rec, int start_time=-1, int time_limit=1e9, bool use_gomoku_cut){
+int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, int start_time=-1, int time_limit=1e9, bool use_gomoku_cut, bool under_attack = false){
     // cout<<"call negamax: "<<color<<" , depth "<<depth<<", "<<attack_depth<<", cut:"<<alpha<<'/'<<beta<<endl;
     
     if(time(0) - start_time > time_limit){
@@ -117,12 +117,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
         return color*(evaluator->board_score());
     }
 
-    // if( evaluator->attack_to_win(color, this->attack_check_depth) ){
-    //     pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
-    //     opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
-    //     return 1e9;
-    // }
-
     if(evaluator->is_win(color))return MAX_BOARD_SCORE;
     else if(evaluator->is_win(-color))return -(MAX_BOARD_SCORE);
 
@@ -130,41 +124,46 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
     visited_node_num[depth+attack_depth]++;
 
 
-    int opt_score = -1e9;
+    int opt_score = -MAX_BOARD_SCORE;
     vector< pair<int,int> > path_rec = opt_path_rec;
     int path_len = path_rec.size();
     if(use_gomoku_cut){
-        vector< pair<int,int> > candidate_pts;
-        bool attack_cut_occur = evaluator->attack_to_win(color, this->attack_check_depth);
-        bool defend_cut_occur = evaluator->attack_to_win(-color, this->attack_check_depth);
-        
-        if(attack_cut_occur){
-            pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
-            opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
-            return MAX_BOARD_SCORE;
+        for(int i=0; i<Board->board_size * Board->board_size; i++){
+            pair<int,int> visited_pt = visit_seq[i];
+            
         }
+
+        // bool attack_cut_occur = evaluator->attack_to_win(color, this->attack_check_depth);
+        // bool defend_cut_occur = evaluator->attack_to_win(-color, this->attack_check_depth);
         
-        if(defend_cut_occur){
-            pair<int,int> opt_pt = {-1, -1};
-            for(int i=0; i<Board->board_size * Board->board_size; i++){
-                pair<int, int> cut_pt = visit_seq[i];
-                path_rec[path_rec.size()-depth - attack_depth] = cut_pt;
-                if(!Board->is_valid_move(cut_pt)){
-                    continue;
-                }
-                Board->add_stone(color, cut_pt);
-                int score = - Negamax( -color, depth-1, attack_depth, -beta, -opt_score, path_rec, start_time, time_limit, use_gomoku_cut);
-                Board->erase(color, cut_pt);
-                if(score>opt_score){
-                    //if(score>=beta)return score;
-                    opt_score = score;
-                    opt_path_rec = path_rec;
-                    opt_pt = cut_pt;
-                }
-            }
-            // recorder.record_minimax_solution(*this, color, depth, opt_score);
-            return opt_score;
-        }
+        // if(attack_cut_occur){
+        //     pair<int,int> opt_pt = evaluator->get_victory_move(color, this->attack_check_depth);
+        //     opt_path_rec[ opt_path_rec.size() - depth - attack_depth ] = opt_pt;
+        //     return MAX_BOARD_SCORE;
+        // }
+        
+        // if(defend_cut_occur){
+        //     pair<int,int> opt_pt = {-1, -1};
+        //     for(int i=0; i<Board->board_size * Board->board_size; i++){
+        //         pair<int, int> cut_pt = visit_seq[i];
+        //         path_rec[path_rec.size()-depth - attack_depth] = cut_pt;
+        //         if(!Board->is_valid_move(cut_pt)){
+        //             continue;
+        //         }
+        //         Board->add_stone(color, cut_pt);
+        //         int score = - Negamax( -color, depth-1, attack_depth, -beta, -opt_score, cut_pt, path_rec, start_time, time_limit, use_gomoku_cut);
+        //         Board->erase(color, cut_pt);
+        //         if(score>opt_score){
+        //             //if(score>=beta)return score;
+        //             opt_score = score;
+        //             opt_path_rec = path_rec;
+        //             opt_pt = cut_pt;
+        //         }
+        //     }
+        //     // recorder.record_minimax_solution(*this, color, depth, opt_score);
+        //     return opt_score;
+
+        // }
     }
     //*/
 
@@ -176,7 +175,7 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
     for(int i=0;i<Board->board_size*Board->board_size;i++){
         
         if(time(0) - start_time > time_limit)
-            return -2e9;
+            return TLE_SCORE;
 
         pair<int,int> visit_pt = visit_seq[i];
         // cout<<"\t search: "<<visit_pt.first<<","<<visit_pt.second<<endl;
@@ -187,7 +186,7 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
         // cout<<"\t\t"<<path_rec.size()<<"/"<<depth <<'/'<< attack_depth <<endl;
         path_rec[path_rec.size()-depth - attack_depth] = visit_pt;
         Board->add_stone(color, visit_pt);
-        int score = - Negamax( -color, depth-1, attack_depth, -beta, -opt_score, path_rec, start_time, time_limit, use_gomoku_cut);
+        int score = - Negamax( -color, depth-1, attack_depth, -beta, -opt_score, visit_pt, path_rec, start_time, time_limit, use_gomoku_cut);
         Board->erase(color, visit_pt);
         
         if(time(0) - start_time > time_limit){
@@ -217,12 +216,12 @@ int Negamax_agent::get_opt_move(int color, int& rec_y, int& rec_x, int limit_tim
 
 bool Negamax_agent::get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth, int attack_depth) {
     vector< pair<int,int> > opt_path(depth + attack_depth);
-    int opt_score = Negamax(color, depth, attack_depth, -1e9, 1e9, opt_path, time(0), limit_time, true);
+    int opt_score = Negamax(color, depth, attack_depth, -1e9, 1e9, {0,0}, opt_path, time(0), limit_time, true);
     pair<int,int> opt_solution = opt_path[0];
 		// cout<<"sucessfully calling Negamax function\n";
         cout<<"score: "<<opt_score<<endl;
 
-    if (opt_score <= -2e9 || opt_solution.first == 0) {
+    if (opt_score ==TLE_SCORE || opt_solution.first == 0) {
         return false;
     }
     for(int i=0;i<opt_path.size();i++){

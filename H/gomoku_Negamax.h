@@ -32,7 +32,7 @@ class Negamax_agent{
         pair<int,int>* visit_seq;
         vector< pair<int,int> > current_opt_path;
 
-        int Negamax(int color,int depth, int attack_depth, int alpha, int beta, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut = false);                
+        int Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut = false, bool under_attack = false);                
         map<int, pair<int,int> > transposition_table;
 
         int attack_check_depth;
