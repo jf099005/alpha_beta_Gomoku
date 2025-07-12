@@ -161,12 +161,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
                 evaluator->is_valid_attack(color, visit_pt) != board_evaluator::STATE::none
             );;
 
-        // if(Board->in_board(prv_move)){
-        //     is_attack_move = (
-        //         evaluator->is_valid_attack(color, visit_pt) == board_evaluator::STATE::none
-        //     );
-        // }
-
         if(use_gomoku_cut){
             // the move is attack if and only if i want to attack
             if(self_strategy == ATTACK && !is_attack_move){
@@ -179,15 +173,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
             }
         }
 
-        // Board->add_stone(color, visit_pt);
-        // if(depth == 6){
-        //     cout<<"search "<<visit_pt.first<<","<<visit_pt.second<<endl;
-        //     cout<<" state: "<<self_strategy<<"/"<<is_attack_move<<endl;
-        // }
-
-        // if(depth == 5){
-        //     cout<<"\t search subpoint "<<visit_pt.first<<","<<visit_pt.second<<endl;
-        // }
         int score = -MAX_BOARD_SCORE;
         
         int sub_atk_depth = attack_depth - (attack_depth>0 && is_attack_move);
@@ -201,10 +186,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
                                 use_gomoku_cut, is_attack_move, opponent_strategy, 0);
         }
 
-        // if(depth == 6){
-        //     cout<<"score: "<<score<<endl;
-        // }
-
         Board->erase(color, visit_pt);
         
         if(time(0) - start_time > time_limit){
@@ -215,7 +196,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
             opt_score = score;
             opt_path_rec = path_rec;
             if( score>= beta )return score;
-            // opt_path_rec[opt_path_rec.size()-depth - attack_depth] = visit_pt;
         }
     }
     return opt_score;

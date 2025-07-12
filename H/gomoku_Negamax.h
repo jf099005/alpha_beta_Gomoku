@@ -50,7 +50,7 @@ class Negamax_agent{
 
         int Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit,\
                  bool use_gomoku_cut = false, bool under_attack = false, int self_strategy = 0, int opponent_strategy = 0);
-        int Negamax_Threaten_defend(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit,\
+        int Negamax_Threaten(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit,\
                  bool use_gomoku_cut = false, bool under_attack = false, int self_strategy = 0, int opponent_strategy = 0);
 
         map<int, pair<int,int> > transposition_table;
