@@ -10,44 +10,50 @@ int main(){
     int n;
     cout<<"input problem id:";
     // cin>>n;
-    n= 7;
+    n= 2;
     while(n--)
         loader.next();
-    // loader.load_problem("./bug_board.txt");
-    board.add_stone(1, {9, 10});
 
     cout<< loader.current_problem() <<endl;
+
+    // board_evaluator eval(&board);
+
+    Negamax_agent agent(15, &board, true);
+
+
+    // board.add_stone(1, {12, 8});
     board.print_board();
 
-    board_evaluator eval(&board);
 
     int color = 1;
     int current_color = 1;
-    while(1){
-        if(color == current_color){
-            pair<int,int> atk_pt;
-            
-            for(int i=1;i<=4;i++){
-                cout<<"search depth: "<<i<<endl;
-                eval.reset_info();
-                atk_pt = eval.get_victory_move(color, i);
-                if(board.in_board(atk_pt)){
-                    cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
-                    // eval.attack_to_win(1, i, true);
-                    break;
-                }
+    int depth = 8;
 
-            }
-            board.add_stone(color, atk_pt);
-            eval.print_info();
-            board.print_board();
-        }
-        else{
-            cout<<"input your move:\n";        
-            int y,x;cin>>y>>x;
-            board.add_stone(-color, {y,x});
-            board.print_board();
-        }
+    // board.add_stone(-1, {9,4});
+    // board.add_stone(1, {9,6});
+    // board.add_stone(-1, {5,7});
+    // board.add_stone(1, {6,7});
+
+    // board.add_stone(-1 ,{11,10});
+    // board.add_stone(1, {12,11});
+    // cout<<"is valid defend: "<<agent.evaluator->is_valid_defend(1, {9,6}, {9,4})<<endl;
+    // board.erase(1, {9,6});
+    // cout<<"input search depth:\n";
+    // cin>>depth;
+    vector<pair<int,int>> test(depth);
+    // board.add_stone(1, {8,12});
+    // board.add_stone(-1, {7,12});
+    // board.add_stone(1, {9,11});
+    // board.add_stone(-1, {7,11});
+    // cout<<"valid defend: "<<agent.evaluator->is_valid_defend(-1, {7,11}, {9,11})<<endl;
+    // cout<<agent.evaluator->is_win(color)<<"/"<<agent.evaluator->is_win(-color)<<endl;
+
+    cout<< agent.Negamax(color, depth, 0, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, test, time(0), 100000000,
+             true, 0, 1, 0);
+    cout<<"/"<<MAX_BOARD_SCORE<<endl;
+    for(auto v:test){
+        cout<<v.first<<","<<v.second<<endl;
     }
+    agent.print_info();
     board.print_board();
 }

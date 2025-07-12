@@ -1,5 +1,21 @@
 #pragma once
 #include"Gomoku_board.h"
+#ifndef MAX_BOARD_SCORE
+#define MAX_BOARD_SCORE (1e9+7)
+#endif
+
+#ifndef TLE_SCORE
+#define TLE_SCORE (2e9+123456)
+#endif
+
+#ifndef ATTACK
+#define ATTACK 1
+#endif
+
+#ifndef NOT_ATTACK
+#define NOT_ATTACK -1
+#endif
+
 
 // #ifndef Memorize
 // #define Memorize
@@ -32,7 +48,11 @@ class Negamax_agent{
         pair<int,int>* visit_seq;
         vector< pair<int,int> > current_opt_path;
 
-        int Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut = false, bool under_attack = false);                
+        int Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit,\
+                 bool use_gomoku_cut = false, bool under_attack = false, int self_strategy = 0, int opponent_strategy = 0);
+        int Negamax_Threaten_defend(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prev_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit,\
+                 bool use_gomoku_cut = false, bool under_attack = false, int self_strategy = 0, int opponent_strategy = 0);
+
         map<int, pair<int,int> > transposition_table;
 
         int attack_check_depth;

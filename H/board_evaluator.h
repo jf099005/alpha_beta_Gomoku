@@ -6,6 +6,14 @@
 #define NOT_VALID_ATTACK 0
 #endif
 
+#ifndef VALID_DEFEND
+#define VALID_DEFEND 1
+#endif
+
+#ifndef DEFEND_BY_ATTACK
+#define DEFEND_By_ATTACK -1
+#endif
+
 class board_evaluator{
     public:
         gomoku_board *Board;
@@ -48,7 +56,7 @@ class board_evaluator{
         // if is not attack then return 0
         // if is attack then return the priority of the attack(1 stand for 1-move to win, 2 stands for 2-move to win, etc.)
         STATE is_valid_attack(int attacker, pair<int,int> atk_pt);
-        bool is_valid_defend(int defender, pair<int,int> def_pt, pair<int,int> atk_pt);
+        int is_valid_defend(int defender, pair<int,int> def_pt, pair<int,int> atk_pt);
         
 
     private:
