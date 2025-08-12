@@ -56,4 +56,5 @@ int main(){
     }
     agent.print_info();
     board.print_board();
+    agent.print_path(test, 1);
 }
