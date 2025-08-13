@@ -47,12 +47,12 @@ class Negamax_agent{
         // get next step by calling Negamax with IDS algorithm
         // calculate the optimal move and record in the reference (y,x), return the maximal depth 
         int get_opt_move(int color, int& rec_y, int& rec_x, int limit_time = 1000, int limit_depth=10);
-        bool get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth, int attack_depth);
+        bool get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth, int critical_move_depth);
         void open_log_file();
         void close_log_file();
 
 
-        int Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec,\
+        int Negamax(int color, int depth, int critical_move_depth, int current_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec,\
                bool under_attack = false, int self_strategy = 0, int opponent_strategy = 0);
 
         map<int, pair<int,int> > transposition_table;

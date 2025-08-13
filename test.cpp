@@ -55,7 +55,9 @@ int main(){
     
     // agent.visit_seq[0] = {6,10};
     agent.log_recursion = 1;
-    cout<< agent.Negamax(color, depth, atk_depth, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, test, 0, 0, 0);
+    agent.open_log_file();
+    cout<< agent.Negamax(color, depth, atk_depth,0, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, test, 0, 0, 0);
+    agent.close_log_file();
     cout<<"/"<<MAX_BOARD_SCORE<<endl;
     for(auto v:test){
         cout<<v.first<<","<<v.second<<endl;
@@ -67,5 +69,4 @@ int main(){
     // board.print_board();
     agent.print_path(test, 1);
     // board.add_stone(1, {6,10});
-    cout<<"6,10 atk:"<< (agent.evaluator->is_valid_attack(1, {6,10}) != board_evaluator::STATE::none)<<endl;
 }

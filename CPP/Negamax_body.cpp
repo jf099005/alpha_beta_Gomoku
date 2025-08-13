@@ -121,47 +121,53 @@ void Negamax_agent::close_log_file(){
     log_file.close();
 }
 
-int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, bool under_attack, int self_strategy, int opponent_strategy){
-    // cout<<"call negamax: "<<color<<" , depth "<<depth<<", "<<attack_depth<<", cut:"<<alpha<<'/'<<beta<<endl;
-    assert( opt_path_rec.size() >= depth + attack_depth );
-    assert(depth + attack_depth>=0);
+int Negamax_agent::Negamax(int color, int depth, int critical_move_depth, int current_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, bool under_attack, int self_strategy, int opponent_strategy){
+    // cout<<"call negamax: "<<color<<" , depth "<<depth<<", "<<critical_move_depth<<", cut:"<<alpha<<'/'<<beta<<endl;
+    
+    if(log_recursion){
+        assert(log_file.is_open());
+        
+        for(int i=0;i<current_depth;i++)
+            log_file<<"\t";
+        log_file<<"calling Negamax of\n";
+        
+        for(int i=0;i<current_depth;i++)
+            log_file<<"\t";
+        log_file<<"\t\tcolor: "<<color<<", depth:"<<depth<<", atk_dep:"<<critical_move_depth<<", prv move:("<<prv_move.first<<","<<prv_move.second<<")"<<", state:"<<under_attack<<'/'<<self_strategy<<"/"<<opponent_strategy<<endl;
+        for(int i=0;i<current_depth;i++)
+            log_file<<"\t";
+        log_file<<"\t\t path:";
+        for(auto v: opt_path_rec){
+            log_file<<'('<<v.first<<","<<v.second<<") ";
+        }
+        log_file<<endl;
+    }
+    assert( opt_path_rec.size() >= depth + critical_move_depth );
+    assert(depth >=0 && critical_move_depth>=0);
     assert(color == 1 || color == -1);
     assert(-1 <= self_strategy && self_strategy <=1);
     assert(-1 <= opponent_strategy && opponent_strategy <=1);
     
-    if(log_recursion){
-        if(!log_file.is_open()){
-            open_log_file();
-        }
-        
-        for(int i=0;i<depth+attack_depth;i++)
-            log_file<<"\t";
-        log_file<<"calling Negamax of\n";
-        
-        for(int i=0;i<depth+attack_depth;i++)
-            log_file<<"\t";
-        log_file<<"\t\tcolor: "<<color<<", depth:"<<depth<<", atk_dep:"<<attack_depth<<", state:"<<under_attack<<'/'<<self_strategy<<"/"<<opponent_strategy<<endl;
-    }
 
     if(time_restrict && time(0) > search_end_time){
         return TLE_SCORE;
     }
 
-    if(depth + attack_depth<=0 || (depth == 0 && self_strategy == -1)){
+    if( (depth <=0 && critical_move_depth<=0) || (depth == 0 && self_strategy == NOT_ATTACK)){
         return color*(evaluator->board_score());
     }
 
     if(evaluator->is_win(color))return MAX_BOARD_SCORE;
     else if(evaluator->is_win(-color))return -(MAX_BOARD_SCORE);
 
-    visited_node_num[depth+attack_depth]++;
+    visited_node_num[current_depth]++;
 
 
     int opt_score = -MAX_BOARD_SCORE;
-    vector< pair<int,int> > path_rec = opt_path_rec;
-
-    
-            // cout<<"attacked at "<<prv_move.first<<","<<prv_move.second<<endl;
+    vector< pair<int,int> > path_rec(opt_path_rec.size());
+    for(int i=0; i<opt_path_rec.size(); i++){
+        path_rec[i] = opt_path_rec[i];
+    }
 
     for(int i=0;i<Board->board_size*Board->board_size;i++){
         
@@ -184,7 +190,7 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
             }
         }
         
-        path_rec[path_rec.size()-depth - attack_depth] = visit_pt;
+        path_rec[current_depth] = visit_pt;
 
         bool is_attack_move = (
                 evaluator->is_valid_attack(color, visit_pt) != board_evaluator::STATE::none
@@ -199,21 +205,39 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
             continue;
         }
 
+        if(depth == 0 && !under_attack && !is_attack_move){
+            Board->erase(color, visit_pt);
+            continue;
+        }
+
         int score = -MAX_BOARD_SCORE;
         
-        int sub_atk_depth = attack_depth - (attack_depth>0 && is_attack_move);
-        int sub_depth = depth - !(attack_depth>0 && is_attack_move);
+        bool consume_critical_move = (critical_move_depth>0 && is_attack_move) || depth == 0;
 
-        score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\
+        int sub_atk_depth = critical_move_depth - consume_critical_move;
+        int sub_depth = depth - !consume_critical_move;
+
+
+        if(log_recursion){
+            assert(log_file.is_open());
+            for(int i=0;i<current_depth;i++)
+                log_file<<"\t";
+            log_file<<" next: "<<visit_pt.first<<","<<visit_pt.second<<endl;
+        }
+
+        score = -Negamax(-color, sub_depth, sub_atk_depth, current_depth+1, -beta, -opt_score, visit_pt, path_rec,\
                             is_attack_move, opponent_strategy, 1);
         
-        if(time_restrict && score == TLE_SCORE)
-            return TLE_SCORE;
 
         if(score < MAX_BOARD_SCORE && self_strategy != ATTACK){
-            score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\
+            score = -Negamax(-color, sub_depth, sub_atk_depth,  current_depth+1,-beta, -opt_score, visit_pt, path_rec,\
                             is_attack_move, opponent_strategy, 0);
         }
+
+        if(time_restrict && score == TLE_SCORE){
+            return TLE_SCORE;
+        }
+
 
         Board->erase(color, visit_pt);
         
@@ -240,9 +264,9 @@ int Negamax_agent::get_opt_move(int color, int& rec_y, int& rec_x, int limit_tim
     return limit_depth;
 }
 
-bool Negamax_agent::get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth, int attack_depth) {
-    vector< pair<int,int> > opt_path(depth + attack_depth);
-    int opt_score = Negamax(color, depth, attack_depth, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, opt_path, time(0), limit_time, true);
+bool Negamax_agent::get_opt_move_with_fixed_depth(int color, int& rec_y, int& rec_x, int limit_time, int depth, int critical_move_depth) {
+    vector< pair<int,int> > opt_path(depth + critical_move_depth);
+    int opt_score = Negamax(color, depth, critical_move_depth, 0, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, opt_path, time(0), limit_time, true);
     pair<int,int> opt_solution = opt_path[0];
 		// cout<<"sucessfully calling Negamax function\n";
         cout<<"score: "<<opt_score<<endl;
