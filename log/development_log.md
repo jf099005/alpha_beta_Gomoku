@@ -23,3 +23,4 @@ use Gomoku problems as benchmark to enhance board_evaluator
 
 ## ref.
 - https://587.renju.org.tw/
+- https://www.renju.net/tournament/2102/

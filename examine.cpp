@@ -5,7 +5,7 @@ using namespace std;
 int main(){
     gomoku_board board(15);
 
-    string problems = "./board/Nakamura/";
+    string problems = "./board/russian/";
     board_loader loader(problems, &board);
     int n;
     cout<<"input problem id:";
@@ -29,6 +29,9 @@ int main(){
                 cout<<"atk pt:"<<atk_pt.first<<", "<<atk_pt.second<<endl;
                 // eval.attack_to_win(1, i, true);
                 break;
+            }
+            else{
+                cout<<"can't find solution\n";
             }
 
         }

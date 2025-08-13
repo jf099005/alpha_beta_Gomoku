@@ -106,7 +106,7 @@ void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
     }
 }
 
-int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, int start_time, int time_limit, bool use_gomoku_cut, bool under_attack, int self_strategy, int opponent_strategy){
+int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, bool under_attack, int self_strategy, int opponent_strategy){
     // cout<<"call negamax: "<<color<<" , depth "<<depth<<", "<<attack_depth<<", cut:"<<alpha<<'/'<<beta<<endl;
     
     assert(depth + attack_depth>=0);
@@ -114,7 +114,7 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
     assert(-1 <= self_strategy && self_strategy <=1);
     assert(-1 <= opponent_strategy && opponent_strategy <=1);
 
-    if(time(0) - start_time > time_limit){
+    if(time_restrict && time(0) > search_end_time){
         return TLE_SCORE;
     }
 
@@ -132,22 +132,21 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
     int opt_score = -MAX_BOARD_SCORE;
     vector< pair<int,int> > path_rec = opt_path_rec;
 
+    
+            // cout<<"attacked at "<<prv_move.first<<","<<prv_move.second<<endl;
+
     for(int i=0;i<Board->board_size*Board->board_size;i++){
         
-        if(time(0) - start_time > time_limit)
+        if(time_restrict &&  time(0) > search_end_time)
             return TLE_SCORE;
 
         pair<int,int> visit_pt = visit_seq[i];
-        // if(depth == 4)cout<<"consider: "<<visit_pt.first<<","<<visit_pt.second<<endl;
         if( Board->get(visit_pt)!=0 ){
-            // cout<<"continue\n";
             continue;
         }
 
         Board->add_stone(color, visit_pt);
-        path_rec[path_rec.size()-depth - attack_depth] = visit_pt;
 
-        // cout<<"\t\t"<<path_rec.size()<<"/"<<depth <<'/'<< attack_depth <<endl;
 
         // cutting conditions check
         if(under_attack){
@@ -156,41 +155,40 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
                 continue;
             }
         }
+        
+        path_rec[path_rec.size()-depth - attack_depth] = visit_pt;
 
         bool is_attack_move = (
                 evaluator->is_valid_attack(color, visit_pt) != board_evaluator::STATE::none
-            );;
+            );
 
-        if(use_gomoku_cut){
-            // the move is attack if and only if i want to attack
-            if(self_strategy == ATTACK && !is_attack_move){
-                Board->erase(color, visit_pt);
-                continue;
-            }
-            if(self_strategy == NOT_ATTACK && is_attack_move){
-                Board->erase(color, visit_pt);
-                continue;
-            }
+        if(self_strategy == ATTACK && !is_attack_move){
+            Board->erase(color, visit_pt);
+            continue;
+        }
+        if(self_strategy == NOT_ATTACK && is_attack_move){
+            Board->erase(color, visit_pt);
+            continue;
         }
 
         int score = -MAX_BOARD_SCORE;
         
         int sub_atk_depth = attack_depth - (attack_depth>0 && is_attack_move);
-        int sub_depth = depth -1 + (attack_depth>0 && is_attack_move);
+        int sub_depth = depth - !(attack_depth>0 && is_attack_move);
 
-        score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec, start_time, time_limit,\
-                            use_gomoku_cut, is_attack_move, opponent_strategy, 1);
+        score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\
+                            is_attack_move, opponent_strategy, 1);
 
         if(score < MAX_BOARD_SCORE && self_strategy != ATTACK){
-            score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec, start_time, time_limit,\
-                                use_gomoku_cut, is_attack_move, opponent_strategy, 0);
+            score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\
+                            is_attack_move, opponent_strategy, 0);
         }
 
         Board->erase(color, visit_pt);
         
-        if(time(0) - start_time > time_limit){
-            return TLE_SCORE;
-        }
+        // if(time(0) - search_end_time){
+        //     return TLE_SCORE;
+        // }
 
         if(score >= opt_score){
             opt_score = score;

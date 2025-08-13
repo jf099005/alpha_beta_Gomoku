@@ -332,11 +332,12 @@ bool board_evaluator::can_defend(int defender, int depth, pair<int,int> atk_pt){
             Board->erase(defender, def_pt);
             return true;
         }
-        bool defend_success = is_valid_defend(defender, def_pt, atk_pt);
+        int defend_success = is_valid_defend(defender, def_pt, atk_pt);
 
         // cout<<"defend result on "<<def_pt.first<<","<<def_pt.second<<": "<<defend_success<<endl;
-        if(defend_success){
-            defend_success &= !attack_to_win(attacker, depth-1);
+        if(defend_success != 0){
+            if(defend_success != DEFEND_By_ATTACK)
+                defend_success &= !attack_to_win(attacker, depth-1);
         }
 
         Board->erase(defender, def_pt);
