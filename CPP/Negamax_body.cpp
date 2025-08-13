@@ -23,8 +23,8 @@
 
 const int default_attack_check_depth = 1;
 
-Negamax_agent::Negamax_agent(int n, gomoku_board* board, bool fix_search_sequence):
-    Board(board), attack_check_depth(default_attack_check_depth)
+Negamax_agent::Negamax_agent(int n, gomoku_board* board, string lp, bool fix_search_sequence):
+    Board(board), log_path(lp)
 {
     //srand(time(0));
     srand(0);
@@ -88,13 +88,20 @@ void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
     cout<<"path length:"<<path_rec.size()<<endl;
     for(auto it:path_rec)cout<<"("<<it.first<<","<<it.second<<"), ";
     cout<<endl;
+
+    cout<<setw(3)<<"\\";
+    for(int i=1;i<=Board->board_size;i++)cout<<setw(3)<<i;
+    cout<<endl;
+
     for(int i=1; i<= this->Board->board_size; i++){
+        cout<<setw(3)<<i;
         for(int j=1;j<=this->Board->board_size;j++){
             bool in_path=0;
             for(int k=0;k<path_rec.size();k++){
                 if( path_rec[k] == pair<int,int>(i,j) ){
                     in_path = 1;
                     cout<<setw(3)<<k;
+                    break;
                 };
             }
             if(!in_path){
@@ -106,13 +113,35 @@ void Negamax_agent::print_path(vector< pair<int,int> > path_rec, int color){
     }
 }
 
+void Negamax_agent::open_log_file(){
+    log_file.open(log_path);
+}
+
+void Negamax_agent::close_log_file(){
+    log_file.close();
+}
+
 int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, int beta, pair<int,int> prv_move, vector< pair<int,int> > &opt_path_rec, bool under_attack, int self_strategy, int opponent_strategy){
     // cout<<"call negamax: "<<color<<" , depth "<<depth<<", "<<attack_depth<<", cut:"<<alpha<<'/'<<beta<<endl;
-    
+    assert( opt_path_rec.size() >= depth + attack_depth );
     assert(depth + attack_depth>=0);
     assert(color == 1 || color == -1);
     assert(-1 <= self_strategy && self_strategy <=1);
     assert(-1 <= opponent_strategy && opponent_strategy <=1);
+    
+    if(log_recursion){
+        if(!log_file.is_open()){
+            open_log_file();
+        }
+        
+        for(int i=0;i<depth+attack_depth;i++)
+            log_file<<"\t";
+        log_file<<"calling Negamax of\n";
+        
+        for(int i=0;i<depth+attack_depth;i++)
+            log_file<<"\t";
+        log_file<<"\t\tcolor: "<<color<<", depth:"<<depth<<", atk_dep:"<<attack_depth<<", state:"<<under_attack<<'/'<<self_strategy<<"/"<<opponent_strategy<<endl;
+    }
 
     if(time_restrict && time(0) > search_end_time){
         return TLE_SCORE;
@@ -124,7 +153,6 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
 
     if(evaluator->is_win(color))return MAX_BOARD_SCORE;
     else if(evaluator->is_win(-color))return -(MAX_BOARD_SCORE);
-
 
     visited_node_num[depth+attack_depth]++;
 
@@ -178,6 +206,9 @@ int Negamax_agent::Negamax(int color, int depth, int attack_depth, int alpha, in
 
         score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\
                             is_attack_move, opponent_strategy, 1);
+        
+        if(time_restrict && score == TLE_SCORE)
+            return TLE_SCORE;
 
         if(score < MAX_BOARD_SCORE && self_strategy != ATTACK){
             score = -Negamax(-color, sub_depth, sub_atk_depth, -beta, -opt_score, visit_pt, path_rec,\

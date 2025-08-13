@@ -18,7 +18,7 @@ int main(){
 
     // board_evaluator eval(&board);
 
-    Negamax_agent agent(15, &board, true);
+    Negamax_agent agent(15, &board,"./log.txt" ,  true);
 
 
     // board.add_stone(1, {12, 8});
@@ -29,6 +29,10 @@ int main(){
     int depth;
     cout<<"depth: ";
     cin>>depth;
+
+    int atk_depth;
+    cout<<"attack depth:";
+    cin>>atk_depth;
 
     // board.add_stone(-1, {9,4});
     // board.add_stone(1, {9,6});
@@ -41,7 +45,7 @@ int main(){
     // board.erase(1, {9,6});
     // cout<<"input search depth:\n";
     // cin>>depth;
-    vector<pair<int,int>> test(depth, {0,0});
+    vector<pair<int,int>> test(depth + atk_depth, {0,0});
     // board.add_stone(1, {8,12});
     // board.add_stone(-1, {7,12});
     // board.add_stone(1, {9,11});
@@ -50,7 +54,8 @@ int main(){
     // cout<<agent.evaluator->is_win(color)<<"/"<<agent.evaluator->is_win(-color)<<endl;
     
     // agent.visit_seq[0] = {6,10};
-    cout<< agent.Negamax(color, depth, 0, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, test, 0, 1, 0);
+    agent.log_recursion = 1;
+    cout<< agent.Negamax(color, depth, atk_depth, -MAX_BOARD_SCORE, MAX_BOARD_SCORE, {0,0}, test, 0, 0, 0);
     cout<<"/"<<MAX_BOARD_SCORE<<endl;
     for(auto v:test){
         cout<<v.first<<","<<v.second<<endl;
@@ -59,8 +64,8 @@ int main(){
     // agent.visit_seq[0] = {6,10};
 
     agent.print_info();
-    board.print_board();
+    // board.print_board();
     agent.print_path(test, 1);
-    board.add_stone(1, {6,10});
+    // board.add_stone(1, {6,10});
     cout<<"6,10 atk:"<< (agent.evaluator->is_valid_attack(1, {6,10}) != board_evaluator::STATE::none)<<endl;
 }
