@@ -95,10 +95,10 @@ bool gomoku_board::erase(int color, pair<int,int> position){
     }
 };
 
-
 bool gomoku_board::in_board(pair<int,int> pt){
     return in_board(pt.first, pt.second);
 }
+
 bool gomoku_board::in_board(int y,int x){
     return (y>0 && y<=this->board_size) &&\
         (x>0 && x<=this->board_size);
